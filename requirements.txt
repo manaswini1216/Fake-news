@@ -30,7 +30,6 @@ matplotlib-inline==0.1.6
 mdurl==0.1.2
 nest-asyncio==1.6.0
 numpy==1.21.6
-packaging==24.0
 pandas==1.1.5
 parso==0.8.4
 pickleshare==0.7.5
