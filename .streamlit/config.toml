@@ -1,0 +1,2 @@
+[server]
+maxUploadSize = 200  # Max model file size in MB
