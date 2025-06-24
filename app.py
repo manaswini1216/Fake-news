@@ -165,8 +165,16 @@ with st.sidebar:
     if 'NEWS_API_KEY' in st.secrets:
         st.success("✅ API Key Configured")
         st.caption(f"Key: `{st.secrets['NEWS_API_KEY'][:4]}...{st.secrets['NEWS_API_KEY'][-4:]}`")
-    else:
-        st.error("❌ Missing API Key")
+    # Check if API key exists
+if 'NEWS_API_KEY' not in st.secrets:
+    st.error("""
+    **API Key Missing**  
+    Please create a `.streamlit/secrets.toml` file with:  
+    ```
+    NEWS_API_KEY = "your_api_key_here"
+    ```
+    """)
+    st.stop()  # This halts the app if key is missing
         
     st.header("How to Use")
     st.write("1. Paste text or fetch headlines")
