@@ -4,8 +4,10 @@ import requests
 from datetime import datetime
 import pandas as pd
 import matplotlib.pyplot as plt
+from sklearn.exceptions import InconsistentVersionWarning
+import warnings
+warnings.filterwarnings("ignore", category=InconsistentVersionWarning)
 
-# Load models
 @st.cache_resource
 def load_models():
     vectorizer = joblib.load("vectorizer.jb")
@@ -14,7 +16,6 @@ def load_models():
 
 vectorizer, model = load_models()
 
-# News API integration
 NEWS_API_KEY = st.secrets.get("NEWS_API_KEY", "your_api_key_here")
 
 def get_news_articles(query=None, country='us', page_size=5):
@@ -32,12 +33,10 @@ def get_news_articles(query=None, country='us', page_size=5):
         return response.json().get('articles', [])
     return []
 
-# Set up page
 st.set_page_config(page_title="Fake News Detector", layout="wide")
 st.title("📰 Fake News Detector")
 st.write("Analyze news articles to detect potential misinformation")
 
-# Create tabs
 tab1, tab2 = st.tabs(["Analyze Text", "Check Headlines"])
 
 with tab1:
@@ -47,30 +46,25 @@ with tab1:
     if st.button("Analyze Text", key="analyze_text"):
         if input_text.strip():
             with st.spinner("Analyzing..."):
-                # Transform and predict
                 transform_input = vectorizer.transform([input_text])
                 prediction = model.predict(transform_input)
                 proba = model.predict_proba(transform_input)[0]
                 
-                # Display results
                 col1, col2 = st.columns(2)
                 if prediction[0] == 1:
                     col1.success("✅ The News is Likely Real")
                 else:
                     col1.error("❌ The News is Likely Fake")
                 
-                # Show confidence meter
                 confidence = max(proba) * 100
                 col2.metric("Confidence", f"{confidence:.1f}%")
                 
-                # Show probability breakdown
                 fig, ax = plt.subplots()
                 ax.barh(['Fake', 'Real'], proba, color=['red', 'green'])
                 ax.set_xlim(0, 1)
                 ax.set_title('Prediction Probabilities')
                 st.pyplot(fig)
                 
-                # Show most important features
                 if hasattr(model, 'coef_'):
                     feature_names = vectorizer.get_feature_names_out()
                     coef = model.coef_[0]
@@ -115,7 +109,6 @@ with tab2:
                         'URL': article.get('url', '#')
                     })
                 
-                # Display results as a table
                 df = pd.DataFrame(results)
                 st.dataframe(
                     df.style.applymap(
@@ -135,7 +128,6 @@ with tab2:
                     use_container_width=True
                 )
                 
-                # Show summary statistics
                 st.subheader("Analysis Summary")
                 real_count = len(df[df['Prediction'] == 'Real'])
                 fake_count = len(df) - real_count
@@ -148,7 +140,6 @@ with tab2:
             else:
                 st.error("Failed to fetch news articles. Please check your API key or try again later.")
 
-# Add sidebar with info
 with st.sidebar:
     st.header("About")
     st.write("This app uses machine learning to detect potentially fake news articles.")
