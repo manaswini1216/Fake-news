@@ -4,6 +4,7 @@ import requests
 from datetime import datetime
 import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
 from sklearn.exceptions import InconsistentVersionWarning
 import warnings
 warnings.filterwarnings("ignore", category=InconsistentVersionWarning)
@@ -17,7 +18,7 @@ def load_models():
 vectorizer, model = load_models()
 
 NEWS_API_KEY = st.secrets.get("NEWS_API_KEY", "your_api_key_here")
-
+@st.cache_resource(ttl=3600)
 def get_news_articles(query=None, country='us', page_size=5):
     base_url = 'https://newsapi.org/v2/top-headlines'
     params = {
